@@ -45,14 +45,18 @@ public class DebugSetup {
         FARM_SCAN,
         FARM_CLIENT_SYNC,
         FARM_BUILD,
+        MULTIBLOCK,
         POWER_CALC,
         GEN_XP,
         GEN_ITEMS,
         GEN_BM_LE,
-        GEN_BM_WILL,
+        GEN_BM_CRYSTAL,
         GEN_HEADS,
+        GEN_EC,
         SPAWN,
-        LEARN
+        LEARN,
+        TARTARUS,
+        DECAP
         ;
 
         public static final EnumSet<EnumDebugType> ALL_OPTS = EnumSet.allOf(EnumDebugType.class);

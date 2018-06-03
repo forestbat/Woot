@@ -1,4 +1,9 @@
 {
+  "conditions": [
+    {
+      "type": "woot:xp_upgrade"
+    }
+  ],
   "result": {
     "item": "woot:upgrade",
     "data": 6
@@ -13,16 +18,10 @@
       "data": 2
     },
     {
-      "type": "minecraft:item_nbt",
+      "type": "woot:enchanted_book",
       "item": "minecraft:enchanted_book",
-      "nbt": {
-        "StoredEnchantments": [
-          {
-            "id": 61,
-            "lvl": 1
-          }
-        ]
-      }
+      "enchant": "minecraft:luck_of_the_sea",
+      "enchant_lvl" : 1
     }
   ]
 }

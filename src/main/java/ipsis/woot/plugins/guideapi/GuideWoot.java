@@ -22,6 +22,7 @@ public class GuideWoot implements IGuideBook {
 
     public static final Book GUIDE_BOOK = new Book();
     public static final int MAX_PAGE_LEN = 360;
+    public static final int MAX_CHANGELOG_PAGE_LEN = 240;
 
     @Nullable
     @Override
@@ -48,6 +49,9 @@ public class GuideWoot implements IGuideBook {
         CategoryAnvil.buildCategory(GUIDE_BOOK);
         CategoryIngredients.buildCategory(GUIDE_BOOK);
         CategoryUpgrades.buildCategory(GUIDE_BOOK);
+        CategoryBloodMagic.buildCategory(GUIDE_BOOK);
+        CategoryEvilCraft.buildCategory(GUIDE_BOOK);
+        CategoryChangelog.buildCategory(GUIDE_BOOK);
     }
 
     @Nullable

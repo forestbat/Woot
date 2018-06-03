@@ -1,8 +1,8 @@
 package ipsis.woot.block;
 
+import ipsis.woot.init.ModItems;
 import ipsis.woot.multiblock.EnumMobFactoryTier;
 import ipsis.woot.oss.ItemHelper;
-import ipsis.woot.oss.LogHelper;
 import ipsis.woot.oss.client.ModelHelper;
 import ipsis.woot.init.ModBlocks;
 import ipsis.woot.plugins.top.ITOPInfoProvider;
@@ -10,6 +10,9 @@ import ipsis.woot.plugins.top.TOPUIInfoConvertors;
 import ipsis.woot.tileentity.IMobFarm;
 import ipsis.woot.tileentity.TileEntityMobFactoryHeart;
 import ipsis.woot.tileentity.ui.FarmUIInfo;
+import ipsis.woot.tools.EnumValidateToolMode;
+import ipsis.woot.tools.IValidateTool;
+import ipsis.woot.tools.ValidateToolUtils;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
@@ -117,31 +120,32 @@ public class BlockMobFactoryHeart extends BlockWoot implements ITooltipInfo, ITi
         if (worldIn.isRemote)
             return true;
 
-        ItemStack heldItem = playerIn.getHeldItemMainhand();
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityMobFactoryHeart) {
 
-        /**
-         * TODO - should be give some feedback?
-        if (heldItem.isEmpty()) {
-            return true;
-        } */
+            TileEntityMobFactoryHeart heart = (TileEntityMobFactoryHeart) te;
+            ItemStack heldItem = playerIn.getHeldItemMainhand();
 
-        if (ItemHelper.areItemsEqual(heldItem.getItem(), Item.getItemFromBlock(Blocks.TORCH))) {
+            if (heldItem.isEmpty()) {
+                heart.showGui(playerIn, worldIn, pos.getX(), pos.getY(), pos.getZ());
+                return true;
+            }
 
-            EnumMobFactoryTier tier;
-            if (heldItem.getCount() == 1)
-                tier = EnumMobFactoryTier.TIER_ONE;
-            else if (heldItem.getCount() == 2)
-                tier = EnumMobFactoryTier.TIER_TWO;
-            else if (heldItem.getCount() == 3)
-                tier = EnumMobFactoryTier.TIER_THREE;
-            else
-                tier = EnumMobFactoryTier.TIER_FOUR;
+            if (heldItem.getItem() instanceof IValidateTool) {
 
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityMobFactoryHeart)
-                ((TileEntityMobFactoryHeart) te).manualFarmScan(playerIn, tier);
+                IValidateTool tool = (IValidateTool) heldItem.getItem();
+                if (tool.isValidateTier(heldItem)) {
+                    EnumMobFactoryTier tier = ValidateToolUtils.getModeFromNbt(heldItem).getTierFromMode();
+                    if (tier != null)
+                        heart.manualFarmScan(playerIn, tier);
+                } else if (tool.isValidateExport(heldItem)) {
+                    heart.outputFarmScan(playerIn);
+                } else if (tool.isValidateImport(heldItem)) {
+                    heart.inputFarmScan(playerIn);
+                }
 
-            return true;
+                return true;
+            }
         }
 
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);

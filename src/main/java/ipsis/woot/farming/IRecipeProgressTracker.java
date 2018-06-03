@@ -6,11 +6,12 @@ public interface IRecipeProgressTracker {
 
     void tick();
     boolean isComplete();
+    int getProgress();
     void reset();
     void setPowerRecipe(PowerRecipe powerRecipe);
     void setPowerStation(IPowerStation powerStation);
-    int getConsumedPower();
+    long getConsumedPower();
 
     // For restore on load only
-    void setConsumedPower(int power);
+    void setConsumedPower(long power);
 }

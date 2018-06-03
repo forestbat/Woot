@@ -23,7 +23,7 @@ public class ConfigKeyHelper {
      */
     public static EnumConfigKey getPowerPerTick(EnumMobFactoryTier tier) {
 
-        int level = tier.ordinal();
+        int level = tier.getLevel();
         return getEntryFromLevel(level, EnumConfigKey.POWER_PER_TICK);
     }
 
@@ -63,10 +63,28 @@ public class ConfigKeyHelper {
         return getEntryFromLevel(level, EnumConfigKey.EFF_POWER_PER_TICK);
     }
 
-    public static EnumConfigKey getBmPowerPerTick(int level) {
+    public static EnumConfigKey getBmLeTankPowerPerTick(int level) {
 
         level = MathHelper.clamp(level, 1, 3);
-        return getEntryFromLevel(level, EnumConfigKey.BM_POWER_PER_TICK);
+        return getEntryFromLevel(level, EnumConfigKey.BM_LE_TANK_POWER_PER_TICK);
+    }
+
+    public static EnumConfigKey getBmLeAltarPowerPerTick(int level) {
+
+        level = MathHelper.clamp(level, 1, 3);
+        return getEntryFromLevel(level, EnumConfigKey.BM_LE_ALTAR_POWER_PER_TICK);
+    }
+
+    public static EnumConfigKey getBmCrystalPowerPerTick(int level) {
+
+        level = MathHelper.clamp(level, 1, 3);
+        return getEntryFromLevel(level, EnumConfigKey.BM_CRYSTAL_POWER_PER_TICK);
+    }
+
+    public static EnumConfigKey getEcBloodPowerPerTick(int level) {
+
+        level = MathHelper.clamp(level, 1, 3);
+        return getEntryFromLevel(level, EnumConfigKey.EC_BLOOD_POWER_PER_TICK);
     }
 
     /**
@@ -108,15 +126,27 @@ public class ConfigKeyHelper {
         return getEntryFromLevel(level, EnumConfigKey.EFF_PARAM);
     }
 
-    public static EnumConfigKey getBmParam1(int level) {
+    public static EnumConfigKey getBmLeTankParam(int level) {
 
         level = MathHelper.clamp(level, 1, 3);
-        return getEntryFromLevel(level, EnumConfigKey.BM_PARAM_1);
+        return getEntryFromLevel(level, EnumConfigKey.BM_LE_TANK_PARAM);
     }
 
-    public static EnumConfigKey getBmParam2(int level) {
+    public static EnumConfigKey getBmLeAltarParam(int level) {
 
         level = MathHelper.clamp(level, 1, 3);
-        return getEntryFromLevel(level, EnumConfigKey.BM_PARAM_2);
+        return getEntryFromLevel(level, EnumConfigKey.BM_LE_ALTAR_PARAM);
+    }
+
+    public static EnumConfigKey getEcBloodParam(int level) {
+
+        level = MathHelper.clamp(level, 1, 3);
+        return getEntryFromLevel(level, EnumConfigKey.EC_BLOOD_PARAM);
+    }
+
+    public static EnumConfigKey getBmCrystalParam(int level) {
+
+        level = MathHelper.clamp(level, 1, 3);
+        return getEntryFromLevel(level, EnumConfigKey.BM_CRYSTAL_PARAM);
     }
 }

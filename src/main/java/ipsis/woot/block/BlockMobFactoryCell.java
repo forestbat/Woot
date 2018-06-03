@@ -13,7 +13,6 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -70,7 +69,7 @@ public class BlockMobFactoryCell extends BlockWoot implements ITileEntityProvide
 
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityMobFactoryCell)
-            ((TileEntityMobFactoryCell) te).blockAdded();
+            ((TileEntityMobFactoryCell) te).onBlockAdded();
     }
 
     @Override

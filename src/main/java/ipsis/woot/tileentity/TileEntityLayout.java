@@ -1,8 +1,8 @@
 package ipsis.woot.tileentity;
 
+import ipsis.Woot;
 import ipsis.woot.init.ModBlocks;
 import ipsis.woot.multiblock.EnumMobFactoryTier;
-import ipsis.woot.multiblock.MobFactoryMultiblockLogic;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -22,10 +22,11 @@ public class TileEntityLayout extends TileEntity {
     List<ILayoutBlockInfo> layoutBlockInfoList;
     EnumFacing facing;
     EnumMobFactoryTier tier;
+    int currLevel = -1;
 
     public TileEntityLayout() {
 
-        layoutBlockInfoList = new ArrayList<ILayoutBlockInfo>();
+        layoutBlockInfoList = new ArrayList<>();
         facing = EnumFacing.SOUTH;
         tier = EnumMobFactoryTier.TIER_ONE;
     }
@@ -40,7 +41,7 @@ public class TileEntityLayout extends TileEntity {
         // The server never needs the block list - it is only used for rendering
         if (this.world != null && this.world.isRemote) {
             layoutBlockInfoList.clear();
-            MobFactoryMultiblockLogic.getFactoryLayout(tier, this.getPos(), facing, layoutBlockInfoList);
+            Woot.factoryPatternRepository.getFactoryLayout(tier, this.getPos(), facing, layoutBlockInfoList);
 
             /**
              * Add the heart and controller
@@ -60,7 +61,7 @@ public class TileEntityLayout extends TileEntity {
 
         if (this.getWorld() != null && !this.getWorld().isRemote) {
             layoutBlockInfoList.clear();
-            MobFactoryMultiblockLogic.getFactoryLayout(tier, this.getPos(), facing, layoutBlockInfoList);
+            Woot.factoryPatternRepository.getFactoryLayout(tier, this.getPos(), facing, layoutBlockInfoList);
 
             /**
              * Now offset the layout by +2 in Y so the factory display is ABOVE the guide block
@@ -88,6 +89,7 @@ public class TileEntityLayout extends TileEntity {
     public void setNextTier() {
 
         this.tier = this.tier.getNext();
+        this.currLevel = -1; /* show all */
         markDirty();
         refreshLayout();
     }
@@ -97,12 +99,26 @@ public class TileEntityLayout extends TileEntity {
         return this.tier;
     }
 
+    public int getCurrLevel() {
+
+        return currLevel;
+    }
+
+    public void setNextLevel() {
+
+
+        currLevel++;
+        if (currLevel >= Woot.factoryPatternRepository.getTierHeight(tier))
+            currLevel = -1; /* show all */
+    }
+
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
 
         compound.setInteger("facing", facing.ordinal());
         compound.setInteger("tier", tier.ordinal());
+        compound.setInteger("level", currLevel);
         return compound;
     }
 
@@ -112,6 +128,7 @@ public class TileEntityLayout extends TileEntity {
 
         facing = EnumFacing.getFront(compound.getInteger("facing"));
         tier = EnumMobFactoryTier.getTier(compound.getInteger("tier"));
+        currLevel = compound.getInteger("level");
 
         refreshLayout();
     }
@@ -148,7 +165,7 @@ public class TileEntityLayout extends TileEntity {
          */
         BlockPos pos = getPos();
         return new AxisAlignedBB(
-                pos.add(-EnumMobFactoryTier.getMaxXZOffset(), -1, -EnumMobFactoryTier.getMaxXZOffset()),
-                pos.add(EnumMobFactoryTier.getMaxXZOffset(), EnumMobFactoryTier.getMaxYOffset() - 1, EnumMobFactoryTier.getMaxXZOffset()));
+                pos.add(-Woot.factoryPatternRepository.getMaxXZOffset(), -1, -Woot.factoryPatternRepository.getMaxXZOffset()),
+                pos.add(Woot.factoryPatternRepository.getMaxXZOffset(), Woot.factoryPatternRepository.getMaxYOffset() - 1, Woot.factoryPatternRepository.getMaxXZOffset()));
     }
 }

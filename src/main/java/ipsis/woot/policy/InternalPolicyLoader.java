@@ -17,7 +17,6 @@ public class InternalPolicyLoader {
     private static final String[] BLACKLIST_ENTITIES_FROM_MODS = {
             "cyberware",
             "withercrumbs",
-            "draconicevolution"
     };
 
     // Entities that don't work well with Woot
@@ -28,7 +27,13 @@ public class InternalPolicyLoader {
             "abyssalcraft:chagaroth",
             "abyssalcraft:shadowboss",
             "abyssalcraft:Jzahar",
-            "roots:spriteGuardian"
+            "roots:spriteGuardian",
+            "twilightforest:lich",
+            "twilightforest:knight_phantom",
+            "twilightforest:quest_ram",
+            "forestry:butterflyge",
+            "erebus:erebus.animated_block",
+            "erebus:erebus.umber_golem"
     };
 
     // MODS where the drops don't work well with Woot

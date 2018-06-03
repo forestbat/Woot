@@ -8,7 +8,10 @@ public enum EnumFarmUpgrade {
     MASS,
     RATE,
     XP,
-    LIFE_ESSENCE;
+    BM_LE_TANK,
+    BM_LE_ALTAR,
+    BM_CRYSTAL,
+    EC_BLOOD;
 
     public static EnumFarmUpgrade getFromEnumSpawnerUpgrade(EnumSpawnerUpgrade u) {
 
@@ -44,10 +47,25 @@ public enum EnumFarmUpgrade {
             case XP_III:
                 farmUpgrade = XP;
                 break;
-            case BLOODMAGIC_I:
-            case BLOODMAGIC_II:
-            case BLOODMAGIC_III:
-                farmUpgrade = LIFE_ESSENCE;
+            case BM_LE_TANK_I:
+            case BM_LE_TANK_II:
+            case BM_LE_TANK_III:
+                farmUpgrade = BM_LE_TANK;
+                break;
+            case BM_LE_ALTAR_I:
+            case BM_LE_ALTAR_II:
+            case BM_LE_ALTAR_III:
+                farmUpgrade = BM_LE_ALTAR;
+                break;
+            case BM_CRYSTAL_I:
+            case BM_CRYSTAL_II:
+            case BM_CRYSTAL_III:
+                farmUpgrade = BM_CRYSTAL;
+                break;
+            case EC_BLOOD_I:
+            case EC_BLOOD_II:
+            case EC_BLOOD_III:
+                farmUpgrade = EC_BLOOD;
                 break;
             default:
                 farmUpgrade = XP; // Should never happen

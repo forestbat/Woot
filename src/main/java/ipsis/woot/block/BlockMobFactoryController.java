@@ -52,7 +52,7 @@ public class BlockMobFactoryController extends BlockWoot implements ITileEntityP
 
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityMobFactoryController)
-            ((TileEntityMobFactoryController) te).blockAdded();
+            ((TileEntityMobFactoryController) te).onBlockAdded();
     }
 
     /**
@@ -77,7 +77,7 @@ public class BlockMobFactoryController extends BlockWoot implements ITileEntityP
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof TileEntityMobFactoryController) {
             TileEntityMobFactoryController tec = (TileEntityMobFactoryController)te;
-            List<ItemStack> ret = new ArrayList<ItemStack>();
+            List<ItemStack> ret = new ArrayList<>();
             ret.add(tec.getDroppedItemStack());
             return ret;
 

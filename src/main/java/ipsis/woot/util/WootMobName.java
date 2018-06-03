@@ -1,5 +1,6 @@
 package ipsis.woot.util;
 
+import ipsis.woot.plugins.thauncraft.Thaumcraft;
 import net.minecraft.util.ResourceLocation;
 
 public class WootMobName {
@@ -59,6 +60,21 @@ public class WootMobName {
     public boolean isValid() {
 
         return !this.entityKey.equals("INVALID");
+    }
+
+    public boolean isEnderDragon() {
+
+        return this.entityKey.equalsIgnoreCase("minecraft:ender_dragon");
+    }
+
+    public boolean isChaosGuardian() {
+
+        return this.entityKey.equalsIgnoreCase("draconicevolution:chaosguardian");
+    }
+
+    public boolean isThaumcraftWisp() {
+
+        return this.entityKey.equalsIgnoreCase(Thaumcraft.getWispName());
     }
 
     public ResourceLocation getResourceLocation() {

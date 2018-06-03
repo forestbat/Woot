@@ -2,14 +2,13 @@ package ipsis.woot.farmstructure;
 
 import ipsis.Woot;
 import ipsis.woot.block.BlockMobFactoryHeart;
-import ipsis.woot.multiblock.EnumMobFactoryTier;
+import ipsis.woot.farmblocks.IFactoryGlue;
+import ipsis.woot.farmblocks.IFactoryGlueProvider;
 import ipsis.woot.util.DebugSetup;
 import ipsis.woot.util.EnumEnchantKey;
 import ipsis.woot.util.EnumFarmUpgrade;
 import ipsis.woot.farming.ITickTracker;
-import ipsis.woot.farmblocks.IFarmBlockConnection;
 import ipsis.woot.farmblocks.IFarmBlockMaster;
-import ipsis.woot.farmblocks.IFarmBlockUpgrade;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -28,13 +27,13 @@ public class FarmBuilder implements IFarmStructure {
     private BlockPos origin;
 
     private boolean changed = false;
-    private ScannedFarm currFarm;
+    private ScannedFarm2 currFarm;
 
     public FarmBuilder() {
 
     }
 
-    private void disconnectOldFarm(@Nullable ScannedFarm oldFarm, ScannedFarm newFarm) {
+    private void disconnectOldFarm(@Nullable ScannedFarm2 oldFarm, ScannedFarm2 newFarm) {
 
         if (oldFarm == null)
             return;
@@ -57,15 +56,15 @@ public class FarmBuilder implements IFarmStructure {
         for (BlockPos pos : oldBlocks) {
             if (world.isBlockLoaded(pos)) {
                 TileEntity te = world.getTileEntity(pos);
-                if (te instanceof IFarmBlockConnection) {
+                if (te instanceof IFactoryGlueProvider) {
                     Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_CLIENT_SYNC, "clearMaster", pos);
-                    ((IFarmBlockConnection) te).clearMaster();
+                    ((IFactoryGlueProvider) te).getIFactoryGlue().clearMaster();
                 }
             }
         }
     }
 
-    private void connectNewFarm(ScannedFarm oldFarm, ScannedFarm newFarm) {
+    private void connectNewFarm(ScannedFarm2 oldFarm, ScannedFarm2 newFarm) {
 
         IFarmBlockMaster master = (IFarmBlockMaster)world.getTileEntity(origin);
         Set<BlockPos> oldBlocks = new HashSet<>();
@@ -87,48 +86,24 @@ public class FarmBuilder implements IFarmStructure {
         for (BlockPos pos : newBlocks) {
             if (world.isBlockLoaded(pos)) {
                 TileEntity te = world.getTileEntity(pos);
-                if (te instanceof IFarmBlockUpgrade)
+                if (te instanceof  IFactoryGlueProvider && ((IFactoryGlueProvider) te).getIFactoryGlue().getType() == IFactoryGlue.FactoryBlockType.UPGRADE)
                     Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_BUILD, "connectNewFarm: connecting upgrade", "");
-                if (te instanceof IFarmBlockConnection) {
+                if (te instanceof IFactoryGlueProvider) {
                     Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_CLIENT_SYNC, "setMaster", pos);
-                    ((IFarmBlockConnection) te).setMaster(master);
+                    ((IFactoryGlueProvider) te).getIFactoryGlue().setMaster(master);
                 }
             }
         }
     }
 
-    private @Nullable ScannedFarm scanFullFarm() {
+    private @Nullable ScannedFarm2 scanFarm() {
 
         EnumFacing facing = world.getBlockState(origin).getValue(BlockMobFactoryHeart.FACING);
-        ScannedFarm scannedFarm = new ScannedFarm();
-        IFarmScanner farmScanner = new FarmScanner();
+        FarmScanner2 farmScanner = new FarmScanner2();
+        ScannedFarm2 scannedFarm = farmScanner.scanFarm(world, origin, facing);
 
-        scannedFarm.base = farmScanner.scanFarmStructure(world, origin, facing);
-        if (!scannedFarm.base.isValid()) {
-            Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_BUILD, "scanFullFarm: invalid base", "");
-            return null;
-        }
-
-        scannedFarm.controller = farmScanner.scanFarmController(world, origin, facing);
-        // Is the controller programmed
-        if (!scannedFarm.controller.isValid()) {
-            Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_BUILD, "scanFullFarm: invalid controller", "");
-            return null;
-        }
-
-        scannedFarm.remote = farmScanner.scanFarmRemote(world, origin);
-        if (!scannedFarm.remote.isValid()) {
-            Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_BUILD, "scanFullFarm: invalid remote", "");
-            return null;
-        }
-
-        scannedFarm.upgrades = farmScanner.scanFarmUpgrades(world, origin, facing, scannedFarm.base.tier);
-
-        farmScanner.applyConfiguration(world, scannedFarm.controller, scannedFarm.upgrades, scannedFarm.base.tier);
-        // Is the programmed controller valid for this factory tier
-        EnumMobFactoryTier mobTier = Woot.wootConfiguration.getFactoryTier(world, scannedFarm.controller.wootMob.getWootMobName());
-        if (!EnumMobFactoryTier.isLessThanOrEqual(mobTier, scannedFarm.base.tier)) {
-            Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_BUILD, "scanFullFarm: need higher tier for mob", "");
+        if (!scannedFarm.isValidStructure() || !scannedFarm.isValidCofiguration(world)) {
+            Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_BUILD, "scanFullFarm: invalid farm", "");
             return null;
         }
 
@@ -137,7 +112,7 @@ public class FarmBuilder implements IFarmStructure {
 
     private void handleDirtyFarm() {
 
-        ScannedFarm scannedFarm = scanFullFarm();
+        ScannedFarm2 scannedFarm = scanFarm();
 
         if (currFarm == null && scannedFarm == null) {
             // NA
@@ -154,7 +129,7 @@ public class FarmBuilder implements IFarmStructure {
             currFarm = null;
         } else if (currFarm != null && scannedFarm != null) {
 
-            if (!ScannedFarm.areFarmsEqual(currFarm, scannedFarm)) {
+            if (!ScannedFarm2.areFarmsEqual(currFarm, scannedFarm)) {
                 Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_BUILD, "handleDirtyFarm: changed farm", "");
                 disconnectOldFarm(currFarm, scannedFarm);
                 connectNewFarm(currFarm, scannedFarm);
@@ -276,9 +251,9 @@ public class FarmBuilder implements IFarmStructure {
         for (BlockPos pos : oldBlocks) {
             if (world.isBlockLoaded(pos)) {
                 TileEntity te = world.getTileEntity(pos);
-                if (te instanceof IFarmBlockConnection) {
+                if (te instanceof IFactoryGlueProvider) {
                     Woot.debugSetup.trace(DebugSetup.EnumDebugType.FARM_CLIENT_SYNC, "clearMaster", pos);
-                    ((IFarmBlockConnection) te).clearMaster();
+                    ((IFactoryGlueProvider) te).getIFactoryGlue().clearMaster();
                 }
             }
         }

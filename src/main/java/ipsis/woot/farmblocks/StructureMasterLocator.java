@@ -13,26 +13,32 @@ import java.util.Stack;
 public class StructureMasterLocator implements IFarmBlockMasterLocator {
 
     @Nullable
-    public IFarmBlockMaster findMaster(World world, BlockPos origin, IFarmBlockConnection farmBlockStructure) {
+    public IFarmBlockMaster findMaster(World world, BlockPos origin, IFactoryGlueProvider iFactoryGlueProvider) {
 
-        List<IFarmBlockConnection> connected = new ArrayList<>();
-        Stack<IFarmBlockConnection> traversing = new Stack<>();
+        List<IFactoryGlueProvider> connected = new ArrayList<>();
+        Stack<IFactoryGlueProvider> traversing = new Stack<>();
 
         IFarmBlockMaster tmpMaster = null;
         boolean masterFound = false;
 
-        traversing.add(farmBlockStructure);
+        traversing.add(iFactoryGlueProvider);
         while (!masterFound && !traversing.isEmpty()) {
-            IFarmBlockConnection curr = traversing.pop();
+            IFactoryGlueProvider curr = traversing.pop();
 
             connected.add(curr);
             for (EnumFacing facing : EnumFacing.values()) {
-                TileEntity te = world.getTileEntity(curr.getStructurePos().offset(facing));
-                if (te instanceof IFarmBlockStructure && te instanceof IFarmBlockConnection && !connected.contains(te)) {
-                    traversing.add((IFarmBlockConnection) te);
-                } else if (te instanceof IFarmBlockMaster) {
-                    masterFound = true;
-                    tmpMaster = (IFarmBlockMaster)te;
+
+                BlockPos pos = curr.getIFactoryGlue().getPos().offset(facing);
+                if (world.isBlockLoaded(pos)) {
+                    TileEntity te = world.getTileEntity(curr.getIFactoryGlue().getPos().offset(facing));
+                    if (te instanceof IFactoryGlueProvider && !connected.contains(te)) {
+                        IFactoryGlueProvider provider = (IFactoryGlueProvider) te;
+                        if (provider.getIFactoryGlue().getType() == IFactoryGlue.FactoryBlockType.STRUCTURE)
+                            traversing.add((IFactoryGlueProvider) te);
+                    } else if (te instanceof IFarmBlockMaster) {
+                        masterFound = true;
+                        tmpMaster = (IFarmBlockMaster) te;
+                    }
                 }
             }
         }

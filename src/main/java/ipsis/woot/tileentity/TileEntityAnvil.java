@@ -4,10 +4,7 @@ import ipsis.Woot;
 import ipsis.woot.crafting.AnvilHelper;
 import ipsis.woot.crafting.IAnvilRecipe;
 import ipsis.woot.item.ItemEnderShard;
-import ipsis.woot.util.DebugSetup;
-import ipsis.woot.util.StringHelper;
-import ipsis.woot.util.WootMob;
-import ipsis.woot.util.WootMobBuilder;
+import ipsis.woot.util.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -110,11 +107,8 @@ public class TileEntityAnvil extends TileEntity {
             return;
         }
 
-        IAnvilRecipe recipe = Woot.anvilManager.tryCraft(itemStack, ingredients);
+        IAnvilRecipe recipe = Woot.anvilManager.getRecipe(itemStack, ingredients);
         if (recipe != null) {
-
-            for (EntityItem e : entityItemList)
-                e.setDead();
 
             ItemStack output = recipe.getCopyOutput();
             Woot.debugSetup.trace(DebugSetup.EnumDebugType.ANVIL_CRAFTING, "tryCraft", "Output " + output);
@@ -130,13 +124,37 @@ public class TileEntityAnvil extends TileEntity {
                 setBaseItem(ItemStack.EMPTY);
 
             world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_HIT, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            EntityItem out = new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, output);
-            world.spawnEntity(out);
+            WorldHelper.spawnInWorld(world, pos, output);
 
             if (!ingredients.isEmpty()) {
                 Woot.debugSetup.trace(DebugSetup.EnumDebugType.ANVIL_CRAFTING, "tryCraft", "Leftovers " + ingredients);
             }
 
+            /**
+             * Remove the used items from the incoming entity items
+             * This has already been checked to ensure that the items are in the list
+              */
+            for (ItemStack recipeStack : recipe.getInputs()) {
+                int count = recipeStack.getCount();
+                for (EntityItem entityItem : entityItemList) {
+                    ItemStack itemStack = entityItem.getItem();
+                    if (ItemStack.areItemsEqual(itemStack, recipeStack) && ItemStack.areItemStackTagsEqual(itemStack, recipeStack)) {
+                        if (entityItem.getItem().getCount() >= count) {
+                            entityItem.getItem().setCount(entityItem.getItem().getCount() - count);
+                            count = 0;
+                        } else {
+                            count -= entityItem.getItem().getCount();
+                            entityItem.getItem().setCount(0);
+                        }
+
+                        if (entityItem.getItem().getCount() <= 0)
+                            entityItem.setDead();
+                    }
+
+                    if (count == 0)
+                        break;
+                }
+            }
         }  else {
 
             entityPlayer.sendStatusMessage(new TextComponentString(StringHelper.localize("chat.woot.anvil.invalid")), false);

@@ -10,12 +10,8 @@ import ipsis.woot.farming.SpawnRecipe;
 import ipsis.woot.util.WootMobName;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.entity.EntityList;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -61,7 +57,7 @@ public class PageFarmRecipe extends Page {
 
         uiTopOrigin = guiTop + 70;
         for (int i = 0; i < fluidIngredients.size(); i++) {
-            guiBase.drawCenteredString(fontRendererObj, fluidIngredients.get(i).getLocalizedName(), guiLeft + guiBase.xSize / 2, uiTopOrigin + (12 * i), 0);
+            guiBase.drawCenteredString(fontRendererObj, fluidIngredients.get(i).getLocalizedName() + " " + fluidIngredients.get(i).amount + "mb", guiLeft + guiBase.xSize / 2, uiTopOrigin + (12 * i), 0);
         }
 
         if (tooltip != null)

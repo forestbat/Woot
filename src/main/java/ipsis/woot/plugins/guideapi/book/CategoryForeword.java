@@ -5,7 +5,6 @@ import amerifrance.guideapi.api.impl.Entry;
 import amerifrance.guideapi.api.util.PageHelper;
 import amerifrance.guideapi.api.util.TextHelper;
 import amerifrance.guideapi.category.CategoryItemStack;
-import ipsis.woot.init.ModBlocks;
 import ipsis.woot.init.ModItems;
 import ipsis.woot.plugins.guideapi.GuideWoot;
 import ipsis.woot.reference.Reference;
@@ -31,6 +30,10 @@ public class CategoryForeword {
         category.getEntry(e).addPageList(PageHelper.pagesForLongText(TextHelper.localize(keyBase + e + ".info"), GuideWoot.MAX_PAGE_LEN));
 
         e = "naming";
+        category.addEntry(e, new Entry(keyBase + e, true));
+        category.getEntry(e).addPageList(PageHelper.pagesForLongText(TextHelper.localize(keyBase + e + ".info"), GuideWoot.MAX_PAGE_LEN));
+
+        e = "sponge";
         category.addEntry(e, new Entry(keyBase + e, true));
         category.getEntry(e).addPageList(PageHelper.pagesForLongText(TextHelper.localize(keyBase + e + ".info"), GuideWoot.MAX_PAGE_LEN));
 
